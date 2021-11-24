@@ -38,23 +38,21 @@ class GenerateData:
         self.df = pd.DataFrame(variables).transpose()
         self.df.columns = column_names
 
-        ev_column = "Evidence"
-        self.df[ev_column] = None
-        column_names.append(ev_column)
-        self.ev_column = ev_column
+        column_names.append("Evidence")
+        self.df[column_names[2]] = None
+
 
     def add_evidence(self, state1: str, state2: str, evidence: list, probability: list):
         """This function adds evidence data on the given transition from state1 to state2
         based on the evidence and probability lists provided"""
         for i in range(len(self.df)):
             if self.df[column_names[0]][i] == state1 and self.df[column_names[1]][i] == state2:
-                self.df[self.ev_column][i] = np.random.choice(evidence, p=probability)
+                self.df[column_names[2]][i] = np.random.choice(evidence, p=probability)
 
 
 data = GenerateData(1000)
 print(data.df.head)
-# data.df.to_csv("my_data.csv")
-# print(type(data.df['Next state'][6999]))
+
 data.add_evidence("S4", "S5", ["E1/E2", "E1", None], [0.4, 0.4, 0.2])
 data.add_evidence("S4", "S8", ["E3", None], [0.8, 0.2])
 data.add_evidence("S4", "S9", ["E2", None], [0.6, 0.4])
@@ -73,3 +71,5 @@ print("S4/S8 Evidence", data.df[(data.df[column_names[0]] == "S4")
                                 & (data.df[column_names[1]] == "S8")].groupby(column_names[2], dropna=False).count())
 print("S4/S9 Evidence", data.df[(data.df[column_names[0]] == "S4")
                                 & (data.df[column_names[1]] == "S9")].groupby(column_names[2], dropna=False).count())
+
+# help(GenerateData)
