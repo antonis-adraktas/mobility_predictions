@@ -41,7 +41,6 @@ class GenerateData:
         column_names.append("Evidence")
         self.df[column_names[2]] = None
 
-
     def add_evidence(self, state1: str, state2: str, evidence: list, probability: list):
         """This function adds evidence data on the given transition from state1 to state2
         based on the evidence and probability lists provided"""
