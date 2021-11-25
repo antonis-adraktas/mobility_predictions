@@ -1,23 +1,32 @@
+import pandas as pd
+import numpy as np
 from create_data import GenerateData
+# for creating Bayesian Belief Networks (BBN)
+from pybbn.graph.dag import Bbn
+from pybbn.graph.edge import Edge, EdgeType
+from pybbn.graph.jointree import EvidenceBuilder
+from pybbn.graph.node import BbnNode
+from pybbn.graph.variable import Variable
+from pybbn.pptc.inferencecontroller import InferenceController
 
-data = GenerateData(5000)
+data = GenerateData(1000)
 data.fill_evidence()
 df = data.df
 
 print(df.head)
+parent = data.column_names[0]
+child = data.column_names[1]
 
-column_names = data.column_names
-unique_states = df["Current state"].unique()
-for i in unique_states:
-    print("Groupby state: " + i)
-    print(df[df["Current state"] == i].groupby("Next state").count())
-    print("\n")
 
-print(column_names)
-print("S4/S5 Evidence", df[(df[column_names[0]] == "S4")
-                                & (df[column_names[1]] == "S5")].groupby(column_names[2], dropna=False).count())
-print("S4/S8 Evidence", df[(df[column_names[0]] == "S4")
-                                & (df[column_names[1]] == "S8")].groupby(column_names[2], dropna=False).count())
-print("S4/S9 Evidence", df[(df[column_names[0]] == "S4")
-                                & (df[column_names[1]] == "S9")].groupby(column_names[2], dropna=False).count())
+print(df[parent][df[parent] == "S1"])
+print(df[child][(df[parent] == "S1") & (df[child] == "S4")])
 
+
+def calculate_prob(pd_frame, state1, state2) -> float:
+    if len(pd_frame[parent][pd_frame[parent] == state1]) != 0:
+        return len(pd_frame[child][(pd_frame[parent] == state1) & (pd_frame[child] == state2)]) / len(pd_frame[parent][pd_frame[parent] == state1])
+    else:
+        return 0.0
+
+
+print(calculate_prob(df, "S1", "S4"))
