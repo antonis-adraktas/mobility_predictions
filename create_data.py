@@ -49,6 +49,10 @@ class GenerateData:
                 self.df[self.column_names[2]][i] = np.random.choice(evidence, p=probability)
 
     def fill_evidence(self):
+        """This function fills the evidence column with synthetic data"""
+        # In case an event is satisfied with either or multiple evidence format
+        # evidence1/evidence2/evidence3 etc should be used
+        #TODO Needs refactoring, Eevery line should have evidence
         self.add_evidence("S4", "S5", ["E1/E2", "E1", None], [0.4, 0.4, 0.2])
         self.add_evidence("S4", "S8", ["E3", None], [0.8, 0.2])
         self.add_evidence("S4", "S9", ["E2", None], [0.6, 0.4])
