@@ -5,13 +5,29 @@ import pandas as pd
 class GenerateData:
     column_names = ["Current state", "Next state"]
     states = ["S1", "S4", "S5", "S6", "S7", "S8", "S9"]
+    evidence_dict = {
+        "E1": "High rank employee",
+        "E2": "Marketing employee",
+        "E3": "Other employee",
+        "E4": "Household work",
+        "E5": "Not well"
+    }
+    states_dict = {
+        "S1": "Person is at home",
+        "S4": "In office (cooperate)",
+        "S5": "In head office",
+        "S6": "Coming to office for lunch",
+        "S7": "Attending some party or get together",
+        "S8": "Leaving early from office for outside work",
+        "S9": "In meeting outside office"
+    }
     transition_probs = {
         "S1": [0, 0.8, 0.1, 0, 0.03, 0, 0.07],
-        "S8": [0.9, 0, 0, 0, 0.1, 0, 0],
-        "S7": [0.8, 0.1, 0.1, 0, 0, 0, 0],
-        "S4": [0, 0, 0.2, 0.5, 0, 0.15, 0.15],
+        "S4": [0.3, 0, 0.2, 0.3, 0, 0.10, 0.10],
         "S5": [0.5, 0.2, 0, 0, 0.2, 0.1, 0],
         "S6": [0, 0.6, 0, 0, 0, 0.25, 0.15],
+        "S7": [0.85, 0.05, 0.05, 0, 0, 0, 0.05],
+        "S8": [0.9, 0, 0, 0, 0.1, 0, 0],
         "S9": [0.55, 0.2, 0.2, 0, 0.05, 0, 0]
     }
 
@@ -52,22 +68,34 @@ class GenerateData:
         """This function fills the evidence column with synthetic data"""
         # In case an event is satisfied with either or multiple evidence format
         # evidence1/evidence2/evidence3 etc should be used
-        #TODO Needs refactoring, Eevery line should have evidence
-        self.add_evidence("S4", "S5", ["E1/E2", "E1", None], [0.4, 0.4, 0.2])
-        self.add_evidence("S4", "S8", ["E3", None], [0.8, 0.2])
-        self.add_evidence("S4", "S9", ["E2", None], [0.6, 0.4])
-        self.add_evidence("S5", "S8", ["E3", "E1/E2", None], [0.8, 0.1, 0.1])
-        self.add_evidence("S1", "S5", ["E1/E2", "E1", None], [0.5, 0.2, 0.3])
-        self.add_evidence("S1", "S9", ["E2", None], [0.4, 0.6])
-        self.add_evidence("S9", "S4", ["E2", None], [0.5, 0.5])
-        self.add_evidence("S9", "S5", ["E1", None], [0.4, 0.6])
-        self.add_evidence("S6", "S9", ["E2", "E1", None], [0.35, 0.2, 0.45])
-        self.add_evidence("S9", "S7", ["E1", None], [0.6, 0.4])
-        self.add_evidence("S5", "S8", ["E3", None], [0.7, 0.3])
-        self.add_evidence("S7", "S5", ["E1", None], [0.65, 0.35])
-        self.add_evidence("S8", "S7", ["E1/E2", None], [0.65, 0.35])
-        self.add_evidence("S5", "S7", ["E1", None], [0.55, 0.45])
-        self.add_evidence("S5", "S4", ["E2", None], [0.45, 0.55])
+        self.add_evidence("S1", "S4", ["E1", "E2", "E3"], [0.05, 0.25, 0.7])
+        self.add_evidence("S1", "S5", ["E1", "E2", "E3"], [0.65, 0.3, 0.05])
+        self.add_evidence("S1", "S7", ["E1", "E2", "E3"], [0.4, 0.4, 0.2])
+        self.add_evidence("S1", "S9", ["E1", "E2", "E3"], [0.35, 0.6, 0.05])
+        self.add_evidence("S4", "S1", ["E1", "E2", "E3"], [0.03, 0.2, 0.77])
+        self.add_evidence("S4", "S5", ["E1", "E2", "E3"], [0.3, 0.6, 0.1])
+        self.add_evidence("S4", "S6", ["E1", "E2", "E3"], [0.05, 0.25, 0.7])
+        self.add_evidence("S4", "S8", ["E4", "E2", "E1"], [0.7, 0.15, 0.15])
+        self.add_evidence("S4", "S9", ["E2", "E1", "E3"], [0.6, 0.35, 0.05])
+        self.add_evidence("S5", "S1", ["E1", "E2", "E3"], [0.7, 0.2, 0.1])
+        self.add_evidence("S5", "S4", ["E1", "E2", "E3"], [0.3, 0.4, 0.3])
+        self.add_evidence("S5", "S7", ["E1", "E2", "E3"], [0.4, 0.3, 0.3])
+        self.add_evidence("S5", "S8", ["E4", "E1", "E2"], [0.6, 0.2, 0.2])
+        self.add_evidence("S6", "S4", ["E3", "E1", "E2"], [0.8, 0.05, 0.15])
+        self.add_evidence("S6", "S8", ["E4", "E1", "E2", "E3"], [0.65, 0.05, 0.15, 0.15])
+        self.add_evidence("S6", "S9", ["E1", "E2", "E3"], [0.35, 0.55, 0.1])
+        self.add_evidence("S7", "S1", ["E1", "E2", "E3"], [0.1, 0.2, 0.7])
+        self.add_evidence("S7", "S1", ["E1", "E2", "E3"], [0.1, 0.2, 0.7])
+        self.add_evidence("S7", "S4", ["E1", "E2", "E3"], [0.0, 0.4, 0.6])
+        self.add_evidence("S7", "S5", ["E1", "E2"], [0.75, 0.25])
+        self.add_evidence("S7", "S9", ["E1", "E2"], [0.6, 0.4])
+        self.add_evidence("S8", "S1", ["E4", "E3", "E2", "E1"], [0.7, 0.22, 0.05, 0.03])
+        self.add_evidence("S8", "S7", ["E3", "E2", "E1"], [0.6, 0.15, 0.25])
+        self.add_evidence("S9", "S1", ["E3", "E2", "E1", "E4"], [0.3, 0.2, 0.1, 0.4])
+        self.add_evidence("S9", "S4", ["E3", "E2", "E1"], [0.25, 0.6, 0.15])
+        self.add_evidence("S9", "S5", ["E3", "E2", "E1"], [0.05, 0.3, 0.65])
+        self.add_evidence("S9", "S7", ["E3", "E2", "E1"], [0.1, 0.4, 0.5])
+
 
 
 # data = GenerateData(1000)
