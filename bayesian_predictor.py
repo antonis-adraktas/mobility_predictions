@@ -85,4 +85,25 @@ def display_graph():
     plt.show()
 
 
-display_graph()
+# display_graph()
+# # Convert the BBN to a join tree
+# join_tree = InferenceController.apply(bbn)
+
+
+# Define a function for printing marginal probabilities
+def probs(pd_frame, child, childbands, parent, parentbands):
+    prob = []
+    for val in parentbands:
+        for val2 in childbands:
+            prob.append(pd_frame[pd_frame[parent] == val][child].tolist().count(val2))
+    prob = [i / sum(prob) for i in prob]
+    return prob
+
+
+prob = probs(df, df_columns[1], states, df_columns[0], ["S1"])
+print(prob)
+
+
+
+# Use the above function to print marginal probabilities
+# print_probs()
