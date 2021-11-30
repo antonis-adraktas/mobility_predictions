@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import networkx as nx # for drawing graphs
+import matplotlib.pyplot as plt # for drawing graphs
 from create_data import GenerateData
 # for creating Bayesian Belief Networks (BBN)
 from pybbn.graph.dag import Bbn
@@ -12,62 +14,75 @@ from pybbn.pptc.inferencecontroller import InferenceController
 data = GenerateData(1000)
 data.fill_evidence()
 df = data.df
-
-print(df.head)
-parent = data.column_names[0]
-child = data.column_names[1]
-evidence = data.column_names[2]
+df_columns = df.columns.tolist()
+states = df[df_columns[0]].unique().tolist()
+# print(states)
 
 
-print(df[parent][df[parent] == "S1"])
-print(df[child][(df[parent] == "S1") & (df[child] == "S4")])
-print(df[child][(df[parent] == "S4") & (df[child] == "S5") & ((df[evidence] == "E1") | (df[evidence] == "E1/E2"))])
+def get_state_paths(state) -> list:
+    """Returns a sorted list of the possible next states from the current state"""
+    return sorted(df[df[df_columns[0]] == state][df_columns[1]].unique().tolist())
 
 
-def get_unique_evidence():
-    """This function retrieves the distinct evidence list (including None) from the imported dataframe"""
-    unique_evidence = []
-    evidence_list = df[evidence].unique().tolist()
-    for i in evidence_list:
-        if i is not None:
-            for j in i.split("/"):
-                if j not in unique_evidence:
-                    unique_evidence.append(j)
-        else:
-            unique_evidence.append(None)
-    return unique_evidence
+def get_prob_transition_per_node(state) -> list:
+    """Returns a list of probabilities transition based on the available paths for each state"""
+    paths = get_state_paths(state)
+    transition_freq = []
+    for i in paths:
+        transition_freq.append(df[(df[df_columns[0]] == state) & (df[df_columns[1]] == i)][df_columns[0]].count())
+    return [float(x)/sum(transition_freq) for x in transition_freq]
 
 
-def evidence_comb(values: list) -> list:
-    """This function returns all values provided and their combinations in
-    a value1/value2 format which is used in the evidence column of the dataframe"""
-    unique_ev = get_unique_evidence()
-    evidence_matrix = []
-    for i in values:
-        evidence_matrix.append(i)
-        for j in unique_ev:
-            if j != i:
-                evidence_matrix.append(f"{i}/{j}")
-    return evidence_matrix
+bbn = Bbn()
+nodes = []
 
 
-# def calculate_prob(pd_frame, state1, state2, ev) -> float:
-#     if ev is None:
-#         if len(pd_frame[parent][pd_frame[parent] == state1]) != 0:
-#             return len(pd_frame[child][(pd_frame[parent] == state1) & (pd_frame[child] == state2)]) \
-#                    / len(pd_frame[parent][pd_frame[parent] == state1])
-#         else:
-#             return 0.0
-#     else:
-#         if len(pd_frame[parent][(pd_frame[parent] == state1) & (pd_frame[evidence].isin(evidence_comb(ev)))]) != 0:
-#             return len(pd_frame[child][(pd_frame[parent] == state1) & (pd_frame[child] == state2) &
-#                                        (pd_frame[evidence].isin(evidence_comb(ev)))]) \
-#                    / len(pd_frame[parent][(pd_frame[parent] == state1) & (pd_frame[evidence].isin(evidence_comb(ev)))])
-#         else:
-#             return 0.0
+def create_nodes():
+    count = 0
+    for i in states:
+        nodes.append(BbnNode(Variable(count, i, get_state_paths(i)), get_prob_transition_per_node(i)))
+        bbn.add_node(nodes[count])
+        count += 1
 
-# print(df[parent][(df[parent] == "S4") & (df[evidence].isin(evidence_comb(["E1"])))].groupby(df[child], dropna=False).count())
 
-print(get_unique_evidence())
-print(evidence_comb(["E1", "E2"]))
+def add_edges():
+    for i in nodes:
+        node_values = i.to_dict().get('variable').get('values')
+        for j in nodes:
+            if j.to_dict().get('variable').get('name') in node_values:
+                bbn.add_edge(Edge(i, j, EdgeType.DIRECTED))
 
+
+create_nodes()
+add_edges()
+print(bbn.edges.keys())
+for i in nodes:
+    print(i)
+
+
+def display_graph():
+    # Set node positions
+    pos = {0: (-2, 2), 1: (-2, 0), 2: (-0.5, -2), 3: (0, 3), 4: (2, 2), 5: (1.5, 0), 6: (2, -2)}
+
+    # Set options for graph looks
+    options = {
+        "font_size": 16,
+        "node_size": 3000,
+        "node_color": "white",
+        "edgecolors": "black",
+        "edge_color": "red",
+        "linewidths": 4,
+        "width": 5, }
+
+    # Generate graph
+    n, d = bbn.to_nx_graph()
+    nx.draw(n, with_labels=True, labels=d, pos=pos, **options)
+
+    # Update margins and print the graph
+    ax = plt.gca()
+    ax.margins(0.10)
+    plt.axis("off")
+    plt.show()
+
+
+display_graph()
