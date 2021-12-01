@@ -97,9 +97,9 @@ class GenerateData:
         self.add_evidence("S9", "S7", ["E3", "E2", "E1"], [0.1, 0.4, 0.5])
 
 
-
 # data = GenerateData(1000)
 # data.fill_evidence()
+# data.df.to_csv("generated_data_5000.csv")
 # print(data.df.head)
 # print(data.df.dropna(axis=0))
 #
