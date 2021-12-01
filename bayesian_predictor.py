@@ -107,18 +107,22 @@ def probs(df, child, childbands,
           parent3=None, parent3bands=None,
           parent4=None, ):
     # Initialize empty list
-    prob=[]
+    prob = {}
     if parent1 is None:
         # Calculate probabilities
         for val in childbands:
-            prob.append(df[child].tolist().count(val))
+            key = f"{child}: {val}"
+            value = df[child].tolist().count(val)
+            prob.update({key: value})
     elif parent1 is not None:
         # Check if parent2 exists
         if parent2 is None:
             # Calcucate probabilities
             for val in parent1bands:
                 for val2 in childbands:
-                    prob.append(df[df[parent1] ==val][child].tolist().count(val2))
+                    key = f"{child}: {val2}, {parent1}: {val}"
+                    value = df[df[parent1] == val][child].tolist().count(val2)
+                    prob.update({key: value})
         elif parent2 is not None:
             # Check if parent3 exists
             if parent3 is None:
@@ -126,7 +130,9 @@ def probs(df, child, childbands,
                 for val in parent1bands:
                     for val2 in parent2bands:
                         for val3 in childbands:
-                            prob.append(df[(df[parent1] == val) & (df[parent2] == val2)][child].tolist().count(val3))
+                            key = f"{child}: {val3}, {parent1}: {val}, {parent2}: {val2}"
+                            value = df[(df[parent1] == val) & (df[parent2] == val2)][child].tolist().count(val3)
+                            prob.update({key: value})
             elif parent3 is not None:
                 # Check if parent4 exists
                 if parent4 is None:
@@ -135,16 +141,18 @@ def probs(df, child, childbands,
                         for val2 in parent2bands:
                             for val3 in parent3bands:
                                 for val4 in childbands:
-                                    prob.append(df[(df[parent1] == val) & (df[parent2] == val2) & (df[parent3] == val3)][child].tolist().count(val4))
-    if sum(prob) != 0:
-        prob = [i / sum(prob) for i in prob]
-        return prob
-    else:
-        return prob
+                                    key = f"{child}: {val4}, {parent1}: {val}, {parent2}: {val2}, {parent3}: {val3}"
+                                    value = df[(df[parent1] == val) & (df[parent2] == val2) & (df[parent3] == val3)][child].tolist().count(val4)
+                                    prob.update({key: value})
+    sum_values = sum(prob.values())
+    for i in prob.keys():
+        norm_value = prob.get(i)/sum_values
+        prob.update({i: norm_value})
+    return prob
 
 
-prob = probs(data, df_columns[1], states, df_columns[0], ["S1"], df_columns[2], ["E4"])
-print(prob)
+probability = probs(data, df_columns[1], states, df_columns[0], ["S1"], df_columns[2], ["E1"])
+print(probability)
 
 
 
