@@ -11,17 +11,18 @@ from pybbn.graph.node import BbnNode
 from pybbn.graph.variable import Variable
 from pybbn.pptc.inferencecontroller import InferenceController
 
-data = GenerateData(1000)
-data.fill_evidence()
-df = data.df
-df_columns = df.columns.tolist()
-states = df[df_columns[0]].unique().tolist()
+generate = GenerateData(1000)
+generate.fill_evidence()
+data = generate.df
+df_columns = data.columns.tolist()
+states = data[df_columns[0]].unique().tolist()
+evidence = data[df_columns[2]].unique().tolist()
 # print(states)
 
 
 def get_state_paths(state) -> list:
     """Returns a sorted list of the possible next states from the current state"""
-    return sorted(df[df[df_columns[0]] == state][df_columns[1]].unique().tolist())
+    return sorted(data[data[df_columns[0]] == state][df_columns[1]].unique().tolist())
 
 
 def get_prob_transition_per_node(state) -> list:
@@ -29,7 +30,7 @@ def get_prob_transition_per_node(state) -> list:
     paths = get_state_paths(state)
     transition_freq = []
     for i in paths:
-        transition_freq.append(df[(df[df_columns[0]] == state) & (df[df_columns[1]] == i)][df_columns[0]].count())
+        transition_freq.append(data[(data[df_columns[0]] == state) & (data[df_columns[1]] == i)][df_columns[0]].count())
     return [float(x)/sum(transition_freq) for x in transition_freq]
 
 
@@ -91,16 +92,58 @@ def display_graph():
 
 
 # Define a function for printing marginal probabilities
-def probs(pd_frame, child, childbands, parent, parentbands):
-    prob = []
-    for val in parentbands:
-        for val2 in childbands:
-            prob.append(pd_frame[pd_frame[parent] == val][child].tolist().count(val2))
-    prob = [i / sum(prob) for i in prob]
-    return prob
+# def probs(pd_frame, child, childbands, parent, parentbands):
+#     prob = []
+#     for val in parentbands:
+#         for val2 in childbands:
+#             prob.append(pd_frame[pd_frame[parent] == val][child].tolist().count(val2))
+#     prob = [i / sum(prob) for i in prob]
+#     return prob
 
 
-prob = probs(df, df_columns[1], states, df_columns[0], ["S1"])
+def probs(df, child, childbands,
+          parent1=None, parent1bands=None,
+          parent2=None, parent2bands=None,
+          parent3=None, parent3bands=None,
+          parent4=None, ):
+    # Initialize empty list
+    prob=[]
+    if parent1 is None:
+        # Calculate probabilities
+        for val in childbands:
+            prob.append(df[child].tolist().count(val))
+    elif parent1 is not None:
+        # Check if parent2 exists
+        if parent2 is None:
+            # Calcucate probabilities
+            for val in parent1bands:
+                for val2 in childbands:
+                    prob.append(df[df[parent1] ==val][child].tolist().count(val2))
+        elif parent2 is not None:
+            # Check if parent3 exists
+            if parent3 is None:
+                # Calcucate probabilities
+                for val in parent1bands:
+                    for val2 in parent2bands:
+                        for val3 in childbands:
+                            prob.append(df[(df[parent1] == val) & (df[parent2] == val2)][child].tolist().count(val3))
+            elif parent3 is not None:
+                # Check if parent4 exists
+                if parent4 is None:
+                    # Calcucate probabilities
+                    for val in parent1bands:
+                        for val2 in parent2bands:
+                            for val3 in parent3bands:
+                                for val4 in childbands:
+                                    prob.append(df[(df[parent1] == val) & (df[parent2] == val2) & (df[parent3] == val3)][child].tolist().count(val4))
+    if sum(prob) != 0:
+        prob = [i / sum(prob) for i in prob]
+        return prob
+    else:
+        return prob
+
+
+prob = probs(data, df_columns[1], states, df_columns[0], ["S1"], df_columns[2], ["E4"])
 print(prob)
 
 
