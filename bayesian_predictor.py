@@ -88,24 +88,20 @@ def display_graph():
 
 # display_graph()
 # # Convert the BBN to a join tree
+# This Inference controller function gives an error "list index out of range".
+# It requires all sample combinations to be present which by definition are not present in our case.
 # join_tree = InferenceController.apply(bbn)
 
 
 # Define a function for printing marginal probabilities
-# def probs(pd_frame, child, childbands, parent, parentbands):
-#     prob = []
-#     for val in parentbands:
-#         for val2 in childbands:
-#             prob.append(pd_frame[pd_frame[parent] == val][child].tolist().count(val2))
-#     prob = [i / sum(prob) for i in prob]
-#     return prob
-
-
 def probs(df, child, childbands,
           parent1=None, parent1bands=None,
           parent2=None, parent2bands=None,
           parent3=None, parent3bands=None,
           parent4=None, ):
+    """This function provides a dictionary with the marginal probabilities for a classification
+     problem with up to 3 parents. The keys of the dictionary provide info on what the exact column
+      value is in a {child}: {val4}, {parent1}: {val}, {parent2}: {val2}, {parent3}: {val3} format"""
     # Initialize empty list
     prob = {}
     if parent1 is None:
@@ -151,10 +147,6 @@ def probs(df, child, childbands,
     return prob
 
 
-probability = probs(data, df_columns[1], states, df_columns[0], ["S1"], df_columns[2], ["E1"])
+probability = probs(data, df_columns[1], states, df_columns[0], ["S4"], df_columns[2], ["E3"])
 print(probability)
-
-
-
-# Use the above function to print marginal probabilities
-# print_probs()
+print(probability.values())
