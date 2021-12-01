@@ -11,13 +11,14 @@ from pybbn.graph.node import BbnNode
 from pybbn.graph.variable import Variable
 from pybbn.pptc.inferencecontroller import InferenceController
 
-generate = GenerateData(1000)
-generate.fill_evidence()
-data = generate.df
+# generate = GenerateData(1000)
+# generate.fill_evidence()
+data = pd.read_csv("generated_data_5000.csv")
 df_columns = data.columns.tolist()
 states = data[df_columns[0]].unique().tolist()
 evidence = data[df_columns[2]].unique().tolist()
 # print(states)
+# print(df_columns)
 
 
 def get_state_paths(state) -> list:
