@@ -1,13 +1,10 @@
 import pandas as pd
 from create_data import GenerateData
-import time
 from sklearn.metrics import classification_report, confusion_matrix
 
 # generate = GenerateData(1000)
 # generate.fill_evidence()
-start = time.time_ns()
 data = pd.read_csv("generated_data_1000.csv")
-read_csv_time = time.time_ns()
 df_columns = data.columns.tolist()
 states = data[df_columns[0]].unique().tolist()
 evidence = data[df_columns[2]].unique().tolist()
@@ -62,29 +59,48 @@ def probs(df, child, childbands,
                                     prob.update({key: value})
     sum_values = sum(prob.values())
     for i in prob.keys():
-        norm_value = prob.get(i)/sum_values
-        prob.update({i: norm_value})
+        if sum_values != 0:
+            norm_value = prob.get(i)/sum_values
+            prob.update({i: norm_value})
+        else:
+            prob.update({i: 0})
     return prob
 
 
-end = time.time_ns()
+def fit(train) -> dict:
+    transition_pred = {}
+    for i in states:
+        for j in evidence:
+            transition_prob = probs(train, df_columns[1], states, df_columns[0], [i], df_columns[2], [j])
+            if sum(transition_prob.values()) != 0:
+                transition_pred.update({f"{i},{j}": list(transition_prob.keys())[list(transition_prob.values()).index(
+                        max(transition_prob.values()))][12:14]})
+            else:
+                transition_pred.update({f"{i},{j}": None})
+    return transition_pred
 
-print("Time to read csv= ", (read_csv_time-start)/1000000000)
-print("Time to process= ", (end - read_csv_time)/1000000000)
+
+# trained_matrix = fit(data)
 
 
-def predict(df):
+def predict(test: pd.DataFrame) -> list:
+    trained_matrix = fit(data)
+    columns = test.columns.tolist()
     predictions = []
-    for i in range(len(df)):
-        trasition_prob = probs(df, df_columns[1], states, df_columns[0],
-                               [df[df_columns[0]][i]], df_columns[2], [df[df_columns[2]][i]])
-        prediction = list(trasition_prob.keys())[list(trasition_prob.values()).index(
-            max(trasition_prob.values()))][12:14]
-        predictions.append(prediction)
+    for i in range(len(test)):
+        key = f"{test[columns[0]][i]},{test[columns[1]][i]}"
+        predictions.append(trained_matrix.get(key))
     return predictions
 
 
-pred = predict(data)
-print(classification_report(data[df_columns[1]], pred))
+test_df = pd.read_csv("test_data_1000.csv")
+# print(test_df.head)
+X_test = test_df.drop(df_columns[1], axis=1)
+# print(X_test)
+y_test = test_df[df_columns[1]]
+# print(y_test.head)
 
-print(confusion_matrix(data[df_columns[1]], pred))
+pred = predict(X_test)
+print(classification_report(y_test, pred))
+
+print(confusion_matrix(y_test, pred))
