@@ -1,97 +1,16 @@
 import pandas as pd
-import numpy as np
-import networkx as nx # for drawing graphs
-import matplotlib.pyplot as plt # for drawing graphs
 from create_data import GenerateData
-# for creating Bayesian Belief Networks (BBN)
-from pybbn.graph.dag import Bbn
-from pybbn.graph.edge import Edge, EdgeType
-from pybbn.graph.jointree import EvidenceBuilder
-from pybbn.graph.node import BbnNode
-from pybbn.graph.variable import Variable
-from pybbn.pptc.inferencecontroller import InferenceController
+import time
+from sklearn.metrics import classification_report, confusion_matrix
 
 # generate = GenerateData(1000)
 # generate.fill_evidence()
-data = pd.read_csv("generated_data_5000.csv")
+start = time.time_ns()
+data = pd.read_csv("generated_data_1000.csv")
+read_csv_time = time.time_ns()
 df_columns = data.columns.tolist()
 states = data[df_columns[0]].unique().tolist()
 evidence = data[df_columns[2]].unique().tolist()
-# print(states)
-# print(df_columns)
-
-
-def get_state_paths(state) -> list:
-    """Returns a sorted list of the possible next states from the current state"""
-    return sorted(data[data[df_columns[0]] == state][df_columns[1]].unique().tolist())
-
-
-def get_prob_transition_per_node(state) -> list:
-    """Returns a list of probabilities transition based on the available paths for each state"""
-    paths = get_state_paths(state)
-    transition_freq = []
-    for i in paths:
-        transition_freq.append(data[(data[df_columns[0]] == state) & (data[df_columns[1]] == i)][df_columns[0]].count())
-    return [float(x)/sum(transition_freq) for x in transition_freq]
-
-
-bbn = Bbn()
-nodes = []
-
-
-def create_nodes():
-    count = 0
-    for i in states:
-        nodes.append(BbnNode(Variable(count, i, get_state_paths(i)), get_prob_transition_per_node(i)))
-        bbn.add_node(nodes[count])
-        count += 1
-
-
-def add_edges():
-    for i in nodes:
-        node_values = i.to_dict().get('variable').get('values')
-        for j in nodes:
-            if j.to_dict().get('variable').get('name') in node_values:
-                bbn.add_edge(Edge(i, j, EdgeType.DIRECTED))
-
-
-create_nodes()
-add_edges()
-print(bbn.edges.keys())
-for i in nodes:
-    print(i)
-
-
-def display_graph():
-    # Set node positions
-    pos = {0: (-2, 2), 1: (-2, 0), 2: (-0.5, -2), 3: (0, 3), 4: (2, 2), 5: (1.5, 0), 6: (2, -2)}
-
-    # Set options for graph looks
-    options = {
-        "font_size": 16,
-        "node_size": 3000,
-        "node_color": "white",
-        "edgecolors": "black",
-        "edge_color": "red",
-        "linewidths": 4,
-        "width": 5, }
-
-    # Generate graph
-    n, d = bbn.to_nx_graph()
-    nx.draw(n, with_labels=True, labels=d, pos=pos, **options)
-
-    # Update margins and print the graph
-    ax = plt.gca()
-    ax.margins(0.10)
-    plt.axis("off")
-    plt.show()
-
-
-# display_graph()
-# # Convert the BBN to a join tree
-# This Inference controller function gives an error "list index out of range".
-# It requires all sample combinations to be present which by definition are not present in our case.
-# join_tree = InferenceController.apply(bbn)
 
 
 # Define a function for printing marginal probabilities
@@ -148,6 +67,24 @@ def probs(df, child, childbands,
     return prob
 
 
-probability = probs(data, df_columns[1], states, df_columns[0], ["S4"], df_columns[2], ["E3"])
-print(probability)
-print(probability.values())
+end = time.time_ns()
+
+print("Time to read csv= ", (read_csv_time-start)/1000000000)
+print("Time to process= ", (end - read_csv_time)/1000000000)
+
+
+def predict(df):
+    predictions = []
+    for i in range(len(df)):
+        trasition_prob = probs(df, df_columns[1], states, df_columns[0],
+                               [df[df_columns[0]][i]], df_columns[2], [df[df_columns[2]][i]])
+        prediction = list(trasition_prob.keys())[list(trasition_prob.values()).index(
+            max(trasition_prob.values()))][12:14]
+        predictions.append(prediction)
+    return predictions
+
+
+pred = predict(data)
+print(classification_report(data[df_columns[1]], pred))
+
+print(confusion_matrix(data[df_columns[1]], pred))
