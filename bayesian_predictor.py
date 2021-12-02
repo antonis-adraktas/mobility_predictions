@@ -68,6 +68,9 @@ def probs(df, child, childbands,
 
 
 def fit(train) -> dict:
+    """This function provides a dictionary with the predicted state for all data combination
+     based on a train dataset. The algorithm logic is to simply select the state with the
+     maximum probability from possible states in the dataset."""
     transition_pred = {}
     for i in states:
         for j in evidence:
@@ -84,6 +87,9 @@ def fit(train) -> dict:
 
 
 def predict(test: pd.DataFrame) -> list:
+    """This function provides a list with the predicted next state for each
+    row of the given dataset. It uses the fit function results, that is trained on
+    a different dataset, to provide predictions """
     trained_matrix = fit(data)
     columns = test.columns.tolist()
     predictions = []
