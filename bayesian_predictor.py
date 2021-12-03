@@ -99,7 +99,7 @@ def predict(test: pd.DataFrame) -> list:
     return predictions
 
 
-test_df = pd.read_csv("balanced_test.csv")
+test_df = pd.read_csv("balanced_1000.csv")
 # print(test_df.head)
 X_test = test_df.drop(df_columns[1], axis=1)
 # print(X_test)

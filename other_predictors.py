@@ -23,7 +23,7 @@ y_train = data["Next state"]
 # print(y_train)
 
 
-test = pd.read_csv("balanced_test.csv")
+test = pd.read_csv("balanced_1000.csv")
 cur_test = pd.get_dummies(test["Current state"], drop_first=True)
 ev_test = pd.get_dummies(test["Evidence"], drop_first=True)
 X_test = pd.concat([cur_test, ev_test], axis=1)
@@ -34,17 +34,17 @@ y_test = test["Next state"]
 # print(y_test.iloc[6999].tolist())
 
 
-# dtree = DecisionTreeClassifier()
-# dtree.fit(X_train, y_train)
-# predictions = dtree.predict(X_test)
+dtree = DecisionTreeClassifier()
+dtree.fit(X_train, y_train)
+predictions = dtree.predict(X_test)
 
 # linear_reg = LogisticRegression()
 # linear_reg.fit(X_train, y_train)
 # predictions = linear_reg.predict(X_test)
 
-knn = KNeighborsClassifier(n_neighbors=13)
-knn.fit(X_train, y_train)
-predictions = knn.predict(X_test)
+# knn = KNeighborsClassifier(n_neighbors=13)
+# knn.fit(X_train, y_train)
+# predictions = knn.predict(X_test)
 
 # error_rate = []
 #
