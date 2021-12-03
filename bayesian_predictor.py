@@ -30,7 +30,7 @@ def probs(df, child, childbands,
     elif parent1 is not None:
         # Check if parent2 exists
         if parent2 is None:
-            # Calcucate probabilities
+            # Calculate probabilities
             for val in parent1bands:
                 for val2 in childbands:
                     key = f"{child}: {val2}, {parent1}: {val}"
@@ -39,7 +39,7 @@ def probs(df, child, childbands,
         elif parent2 is not None:
             # Check if parent3 exists
             if parent3 is None:
-                # Calcucate probabilities
+                # Calculate probabilities
                 for val in parent1bands:
                     for val2 in parent2bands:
                         for val3 in childbands:
@@ -49,7 +49,7 @@ def probs(df, child, childbands,
             elif parent3 is not None:
                 # Check if parent4 exists
                 if parent4 is None:
-                    # Calcucate probabilities
+                    # Calculate probabilities
                     for val in parent1bands:
                         for val2 in parent2bands:
                             for val3 in parent3bands:
@@ -104,7 +104,6 @@ test_df = pd.read_csv("test_data_1000.csv")
 X_test = test_df.drop(df_columns[1], axis=1)
 # print(X_test)
 y_test = test_df[df_columns[1]]
-# print(y_test.head)
 
 pred = predict(X_test)
 print(classification_report(y_test, pred))
