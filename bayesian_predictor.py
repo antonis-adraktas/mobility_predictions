@@ -67,14 +67,17 @@ def probs(df, child, childbands,
     return prob
 
 
-def fit(train) -> dict:
+def fit(train, child, parent1, parent2) -> dict:
     """This function provides a dictionary with the predicted state for all data combination
      based on a train dataset. The algorithm logic is to simply select the state with the
      maximum probability from possible states in the dataset."""
     transition_pred = {}
-    for i in states:
-        for j in evidence:
-            transition_prob = probs(train, df_columns[1], states, df_columns[0], [i], df_columns[2], [j])
+    parent1_list = train[parent1].unique().tolist()
+    parent2_list = train[parent2].unique().tolist()
+    for i in parent1_list:
+        for j in parent2_list:
+            transition_prob = probs(train, child, parent1_list, parent1, [i], parent2, [j])
+            # transition_prob = probs(train, df_columns[1], states, df_columns[0], [i])  # evidence not accounted
             if sum(transition_prob.values()) != 0:
                 transition_pred.update({f"{i},{j}": list(transition_prob.keys())[list(transition_prob.values()).index(
                         max(transition_prob.values()))][12:14]})
@@ -83,19 +86,19 @@ def fit(train) -> dict:
     return transition_pred
 
 
-# trained_matrix = fit(data)
+# print(probs(data, df_columns[1], states, df_columns[0], ["S1"], df_columns[2], ["E1"]))
+trained_matrix = fit(data, df_columns[1], df_columns[0], df_columns[2])
 
 
-def predict(test: pd.DataFrame) -> list:
+def predict(test: pd.DataFrame, fit_matrix) -> list:
     """This function provides a list with the predicted next state for each
     row of the given dataset. It uses the fit function results, that is trained on
     a different dataset, to provide predictions """
-    trained_matrix = fit(data)
     columns = test.columns.tolist()
     predictions = []
     for i in range(len(test)):
         key = f"{test[columns[0]][i]},{test[columns[1]][i]}"
-        predictions.append(trained_matrix.get(key))
+        predictions.append(fit_matrix.get(key))
     return predictions
 
 
@@ -105,7 +108,9 @@ X_test = test_df.drop(df_columns[1], axis=1)
 # print(X_test)
 y_test = test_df[df_columns[1]]
 
-pred = predict(X_test)
+pred = predict(X_test, trained_matrix)
+print('Bayesian probabilistic predictor')
+print("Classification report")
 print(classification_report(y_test, pred))
-
+print("Confusion matrix")
 print(confusion_matrix(y_test, pred))
