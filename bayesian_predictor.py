@@ -87,7 +87,6 @@ def fit(train, child, parent1, parent2) -> dict:
 
 
 # print(probs(data, df_columns[1], states, df_columns[0], ["S1"], df_columns[2], ["E1"]))
-trained_matrix = fit(data, df_columns[1], df_columns[0], df_columns[2])
 
 
 def predict(test: pd.DataFrame, fit_matrix) -> list:
@@ -102,7 +101,9 @@ def predict(test: pd.DataFrame, fit_matrix) -> list:
     return predictions
 
 
-test_df = pd.read_csv("balanced_1000.csv")
+trained_matrix = fit(data, df_columns[1], df_columns[0], df_columns[2])
+# print(trained_matrix)
+test_df = pd.read_csv("balanced_test_1000.csv")
 # print(test_df.head)
 X_test = test_df.drop(df_columns[1], axis=1)
 # print(X_test)

@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("generated_data_5000.csv")
+df = pd.read_csv("test_data_5000.csv")
 sample = df.sample(frac=1, random_state=1)
 states = sample["Next state"].unique().tolist()
 # print(states)
@@ -14,4 +14,4 @@ balanced = balanced.sample(frac=1, random_state=1)
 print(balanced.describe)
 print(balanced.head)
 
-balanced.to_csv("balanced_1000.csv", index=False)
+balanced.to_csv("balanced_test_1000.csv", index=False)

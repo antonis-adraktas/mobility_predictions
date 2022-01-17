@@ -10,7 +10,6 @@ class GenerateData:
         "E2": "Marketing employee",
         "E3": "Other employee",
         "E4": "Household work",
-        "E5": "Not well"
     }
     states_dict = {
         "S1": "Person is at home",
@@ -66,8 +65,7 @@ class GenerateData:
 
     def fill_evidence(self):
         """This function fills the evidence column with synthetic data"""
-        # In case an event is satisfied with either or multiple evidence format
-        # evidence1/evidence2/evidence3 etc should be used
+
         self.add_evidence("S1", "S4", ["E1", "E2", "E3"], [0.05, 0.25, 0.7])
         self.add_evidence("S1", "S5", ["E1", "E2", "E3"], [0.65, 0.3, 0.05])
         self.add_evidence("S1", "S7", ["E1", "E2", "E3"], [0.4, 0.4, 0.2])
@@ -85,7 +83,6 @@ class GenerateData:
         self.add_evidence("S6", "S8", ["E4", "E1", "E2", "E3"], [0.65, 0.05, 0.15, 0.15])
         self.add_evidence("S6", "S9", ["E1", "E2", "E3"], [0.35, 0.55, 0.1])
         self.add_evidence("S7", "S1", ["E1", "E2", "E3"], [0.1, 0.2, 0.7])
-        self.add_evidence("S7", "S1", ["E1", "E2", "E3"], [0.1, 0.2, 0.7])
         self.add_evidence("S7", "S4", ["E1", "E2", "E3"], [0.0, 0.4, 0.6])
         self.add_evidence("S7", "S5", ["E1", "E2"], [0.75, 0.25])
         self.add_evidence("S7", "S9", ["E1", "E2"], [0.6, 0.4])
@@ -97,9 +94,10 @@ class GenerateData:
         self.add_evidence("S9", "S7", ["E3", "E2", "E1"], [0.1, 0.4, 0.5])
 
 
-# data = GenerateData(5000)
+# data = GenerateData(1000)
 # data.fill_evidence()
-# data.df.to_csv("test_data_5000.csv", index=False)
+# data.df.sample(frac=1, random_state=1).to_csv("test_data_1000.csv", index=False)
+
 # print(data.df.head)
 # print(data.df.dropna(axis=0))
 #
