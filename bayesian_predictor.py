@@ -103,7 +103,7 @@ def predict(test: pd.DataFrame, fit_matrix) -> list:
 
 trained_matrix = fit(data, df_columns[1], df_columns[0], df_columns[2])
 # print(trained_matrix)
-test_df = pd.read_csv("balanced_test_1000.csv")
+test_df = pd.read_csv("test_data_1000.csv")
 # print(test_df.head)
 X_test = test_df.drop(df_columns[1], axis=1)
 # print(X_test)
@@ -115,3 +115,19 @@ print("Classification report")
 print(classification_report(y_test, pred))
 print("Confusion matrix")
 print(confusion_matrix(y_test, pred))
+
+
+for i in evidence:
+    new_test_df = test_df[test_df["Evidence"] == i]
+    # print(new_test_df)
+    new_x_test = new_test_df.drop(df_columns[1], axis=1).reset_index(drop=True)
+    # print(new_x_test)
+    new_y_test = new_test_df[df_columns[1]]
+    predictions = predict(new_x_test, trained_matrix)
+    print('Bayesian probabilistic predictor for evidence ', i)
+    print("Classification report")
+    print(classification_report(new_y_test, predictions))
+    print("Confusion matrix")
+    print(confusion_matrix(new_y_test, predictions))
+
+
