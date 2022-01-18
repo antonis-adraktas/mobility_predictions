@@ -10,6 +10,7 @@ from pybbn.graph.node import BbnNode
 from pybbn.graph.variable import Variable
 from pybbn.pptc.inferencecontroller import InferenceController
 
+# This file is used for visualization of Bayesian network, see comment for error at the end of file
 data = pd.read_csv("generated_data_1000.csv")
 df_columns = data.columns.tolist()
 states = data[df_columns[0]].unique().tolist()

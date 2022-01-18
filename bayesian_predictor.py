@@ -67,42 +67,58 @@ def probs(df, child, childbands,
     return prob
 
 
-def fit(train, child, parent1, parent2) -> dict:
+def fit(train, child, parent1, parent2=None) -> dict:
     """This function provides a dictionary with the predicted state for all data combination
      based on a train dataset. The algorithm logic is to simply select the state with the
-     maximum probability from possible states in the dataset."""
+     maximum probability from possible states in the dataset. If parent 2 is set to None then
+     the fit function will only account for current state column data"""
     transition_pred = {}
     parent1_list = train[parent1].unique().tolist()
-    parent2_list = train[parent2].unique().tolist()
     for i in parent1_list:
-        for j in parent2_list:
-            transition_prob = probs(train, child, parent1_list, parent1, [i], parent2, [j])
-            # transition_prob = probs(train, df_columns[1], states, df_columns[0], [i])  # evidence not accounted
+        if parent2 is not None:
+            parent2_list = train[parent2].unique().tolist()
+            for j in parent2_list:
+                transition_prob = probs(train, child, parent1_list, parent1, [i], parent2, [j])
+                if sum(transition_prob.values()) != 0:
+                    transition_pred.update(
+                        {f"{i},{j}": list(transition_prob.keys())[list(transition_prob.values()).index(
+                            max(transition_prob.values()))][12:14]})
+                else:
+                    transition_pred.update({f"{i},{j}": None})
+        else:
+            # this branch calculates probs without evidence column data
+            transition_prob = probs(train, df_columns[1], states, df_columns[0], [i])
             if sum(transition_prob.values()) != 0:
-                transition_pred.update({f"{i},{j}": list(transition_prob.keys())[list(transition_prob.values()).index(
+                transition_pred.update(
+                    {f"{i}": list(transition_prob.keys())[list(transition_prob.values()).index(
                         max(transition_prob.values()))][12:14]})
             else:
-                transition_pred.update({f"{i},{j}": None})
+                transition_pred.update({f"{i}": None})
     return transition_pred
 
 
 # print(probs(data, df_columns[1], states, df_columns[0], ["S1"], df_columns[2], ["E1"]))
 
 
-def predict(test: pd.DataFrame, fit_matrix) -> list:
+def predict(test: pd.DataFrame, fit_matrix: dict) -> list:
     """This function provides a list with the predicted next state for each
     row of the given dataset. It uses the fit function results, that is trained on
     a different dataset, to provide predictions """
     columns = test.columns.tolist()
     predictions = []
     for i in range(len(test)):
-        key = f"{test[columns[0]][i]},{test[columns[1]][i]}"
+        if len(list(fit_matrix.keys())[0]) > 2:
+            key = f"{test[columns[0]][i]},{test[columns[1]][i]}"
+        else:
+            key = f"{test[columns[0]][i]}"  # evidence not accounted
         predictions.append(fit_matrix.get(key))
     return predictions
 
 
-trained_matrix = fit(data, df_columns[1], df_columns[0], df_columns[2])
-# print(trained_matrix)
+# trained_matrix = fit(data, df_columns[1], df_columns[0], df_columns[2])
+trained_matrix = fit(data, df_columns[1], df_columns[0], None)
+print(len(list(trained_matrix.keys())[0]))
+print(trained_matrix)
 test_df = pd.read_csv("test_data_1000.csv")
 # print(test_df.head)
 X_test = test_df.drop(df_columns[1], axis=1)
@@ -117,17 +133,17 @@ print("Confusion matrix")
 print(confusion_matrix(y_test, pred))
 
 
-for i in evidence:
-    new_test_df = test_df[test_df["Evidence"] == i]
-    # print(new_test_df)
-    new_x_test = new_test_df.drop(df_columns[1], axis=1).reset_index(drop=True)
-    # print(new_x_test)
-    new_y_test = new_test_df[df_columns[1]]
-    predictions = predict(new_x_test, trained_matrix)
-    print('Bayesian probabilistic predictor for evidence ', i)
-    print("Classification report")
-    print(classification_report(new_y_test, predictions))
-    print("Confusion matrix")
-    print(confusion_matrix(new_y_test, predictions))
+# for i in evidence:
+#     new_test_df = test_df[test_df["Evidence"] == i]
+#     new_x_test = new_test_df.drop(df_columns[1], axis=1).reset_index(drop=True)
+#     new_y_test = new_test_df[df_columns[1]]
+#
+#     predictions = predict(new_x_test, trained_matrix)
+#
+#     print('Bayesian probabilistic predictor for evidence ', i)
+#     print("Classification report")
+#     print(classification_report(new_y_test, predictions))
+#     print("Confusion matrix")
+#     print(confusion_matrix(new_y_test, predictions))
 
 
