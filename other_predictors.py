@@ -4,6 +4,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import CategoricalNB
 import matplotlib.pyplot as plt
 
 data = pd.read_csv("generated_data_1000.csv")
@@ -14,35 +15,23 @@ evidence = pd.get_dummies(data["Evidence"], drop_first=True)
 X_train = pd.concat([current, evidence], axis=1)
 
 y_train = data["Next state"]
-# y_train = pd.get_dummies(data["Next state"])
-# col = y_train.columns.tolist()
-# new_col = []
-# for i in col:
-#     new_col.append("next_"+i)
-# y_train.columns = new_col
-# print(y_train)
 
-
-test = pd.read_csv("balanced_1000.csv")
+test = pd.read_csv("balanced_test_1000.csv")
 cur_test = pd.get_dummies(test["Current state"], drop_first=True)
 ev_test = pd.get_dummies(test["Evidence"], drop_first=True)
 X_test = pd.concat([cur_test, ev_test], axis=1)
 
 y_test = test["Next state"]
-# y_test = pd.get_dummies(test["Next state"])
-# y_test.columns = new_col
-# print(y_test.iloc[6999].tolist())
 
+# log_reg = LogisticRegression(max_iter=200)
+# log_reg.fit(X_train, y_train)
+# predictions = log_reg.predict(X_test)
 
-dtree = DecisionTreeClassifier()
-dtree.fit(X_train, y_train)
-predictions = dtree.predict(X_test)
+# naive_bayes = CategoricalNB()
+# naive_bayes.fit(X_train, y_train)
+# predictions = naive_bayes.predict(X_test)
 
-# linear_reg = LogisticRegression()
-# linear_reg.fit(X_train, y_train)
-# predictions = linear_reg.predict(X_test)
-
-# knn = KNeighborsClassifier(n_neighbors=13)
+# knn = KNeighborsClassifier(n_neighbors=3)
 # knn.fit(X_train, y_train)
 # predictions = knn.predict(X_test)
 
@@ -62,6 +51,11 @@ predictions = dtree.predict(X_test)
 # plt.xlabel('K')
 # plt.ylabel('Error Rate')
 # plt.show()
+
+dtree = DecisionTreeClassifier()
+dtree.fit(X_train, y_train)
+predictions = dtree.predict(X_test)
+
 print('DecisionTreeClassifier predictor')
 print("Classification report")
 print(classification_report(y_test, predictions))

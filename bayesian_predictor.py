@@ -110,16 +110,17 @@ def predict(test: pd.DataFrame, fit_matrix: dict) -> list:
         if len(list(fit_matrix.keys())[0]) > 2:
             key = f"{test[columns[0]][i]},{test[columns[1]][i]}"
         else:
-            key = f"{test[columns[0]][i]}"  # evidence not accounted
+            # runs when evidence is not accounted
+            key = f"{test[columns[0]][i]}"
         predictions.append(fit_matrix.get(key))
     return predictions
 
 
-# trained_matrix = fit(data, df_columns[1], df_columns[0], df_columns[2])
-trained_matrix = fit(data, df_columns[1], df_columns[0], None)
-print(len(list(trained_matrix.keys())[0]))
+trained_matrix = fit(data, df_columns[1], df_columns[0], df_columns[2]) # with evidence
+# trained_matrix = fit(data, df_columns[1], df_columns[0], None)   # without evidence
+
 print(trained_matrix)
-test_df = pd.read_csv("test_data_1000.csv")
+test_df = pd.read_csv("balanced_test_1000.csv")
 # print(test_df.head)
 X_test = test_df.drop(df_columns[1], axis=1)
 # print(X_test)

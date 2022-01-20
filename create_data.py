@@ -97,23 +97,3 @@ class GenerateData:
 # data = GenerateData(1000)
 # data.fill_evidence()
 # data.df.sample(frac=1, random_state=1).to_csv("test_data_1000.csv", index=False)
-
-# print(data.df.head)
-# print(data.df.dropna(axis=0))
-#
-#
-# column_names = data.column_names
-# unique_states = data.df["Current state"].unique()
-# for i in unique_states:
-#     print("Groupby state: " + i)
-#     print(data.df[data.df["Current state"] == i].groupby("Next state").count())
-#     print("\n")
-#
-# print(column_names)
-# print("S4/S5 Evidence", data.df[(data.df[column_names[0]] == "S4")
-#                                 & (data.df[column_names[1]] == "S5")].groupby(column_names[2], dropna=False).count())
-# print("S4/S8 Evidence", data.df[(data.df[column_names[0]] == "S4")
-#                                 & (data.df[column_names[1]] == "S8")].groupby(column_names[2], dropna=False).count())
-# print("S4/S9 Evidence", data.df[(data.df[column_names[0]] == "S4")
-#                                 & (data.df[column_names[1]] == "S9")].groupby(column_names[2], dropna=False).count())
-
